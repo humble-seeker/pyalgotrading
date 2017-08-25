@@ -22,9 +22,13 @@ class AlgoTradingBacktesting:
         # Can be open, high, low, close, etc. depending on your strategy
         self.datapoints = []
 
-        # For keeping track of prices at which stocks were brought and sold
+        # Keep track of prices at which stocks were brought and sold
         self.buy_trades = []
         self.sell_trades = []
+
+        # Keep track of stoploss orders
+        self.buy_stoploss_orders = []
+        self.sell_stoploss_orders = []
 
         # For storing trade history.
         self.trade_history = []
@@ -46,17 +50,18 @@ class AlgoTradingBacktesting:
         """
 
     def update_trade_history(func):
-        def wrapper(self):
-            func(self)
+        def wrapper(self, quantity=1, stop_loss_trigger=None):
+            func(self, quantity, stop_loss_trigger)
             buy_qty = len(self.buy_trades)
             sell_qty = len(self.sell_trades)
             qty = min(buy_qty, sell_qty)
+            print buy_qty, sell_qty, qty, 'debug'
             if qty:
                 sell_value = sum(self.sell_trades[:qty])
                 buy_value = sum(self.buy_trades[:qty])
                 profit = sell_value - buy_value
-                avg_buy_price = buy_value/len(self.buy_trades)
-                profit_percent = 100.0*profit/avg_buy_price
+                print sell_value, buy_value, profit
+                profit_percent = 100.0*profit/buy_value
             else:
                 profit_percent = 0
             print 'Profit: %f percent' % profit_percent
@@ -69,15 +74,29 @@ class AlgoTradingBacktesting:
         return wrapper
 
     @update_trade_history
-    def buy_trade(self, quantity=1):
+    def buy_trade(self, quantity=1, stop_loss_trigger=None):
         self.current_quantity += quantity
-        self.buy_trades.append(self.current_stock_price)
+        self.buy_trades += [self.current_stock_price]*quantity
+
+        if stop_loss_trigger:
+            if stop_loss_trigger >= self.current_stock_price:
+                raise Exception('buy_trade: Stop loss trigger should be less than current stock price')
+            else:
+                self.buy_stoploss_orders.append({'trigger': stop_loss_trigger, 'quantity': quantity})
+
         print 'Brought %d@%f' % (quantity, self.current_stock_price),
 
     @update_trade_history
-    def sell_trade(self, quantity=1):
+    def sell_trade(self, quantity=1, stop_loss_trigger=None):
         self.current_quantity -= quantity
-        self.sell_trades.append(self.current_stock_price)
+        self.sell_trades += [self.current_stock_price]*quantity
+
+        if stop_loss_trigger:
+            if stop_loss_trigger <= self.current_stock_price:
+                raise Exception('sell_trade: Stop loss trigger should be greater than current stock price')
+            else:
+                self.sell_stoploss_orders.append({'trigger': stop_loss_trigger, 'quantity': quantity})
+
         print 'Sold %d@%f' % (quantity, self.current_stock_price),
 
     @abstractmethod
@@ -99,6 +118,27 @@ class AlgoTradingBacktesting:
         for i, datapoint in enumerate(self.datapoints):
             self.current_time = self.timeline[i]
             self.current_stock_price = datapoint
+
+            # Exectue stoploss orders, if any
+            stoploss_qty = 0
+            for j, stoploss_order in reversed(list(enumerate(self.buy_stoploss_orders))):
+                if self.current_stock_price <= stoploss_order['trigger']:
+                    stoploss_qty += stoploss_order['quantity']
+                    self.buy_stoploss_orders.pop(j)
+            if stoploss_qty:
+                print 'BUY Stoploss triggered. Selling %d stock(s)...' % stoploss_qty
+                self.sell_trade(stoploss_qty)
+
+            stoploss_qty = 0
+            for j, stoploss_order in reversed(list(enumerate(self.sell_stoploss_orders))):
+                if self.current_stock_price >= stoploss_order['trigger']:
+                    stoploss_qty += stoploss_order['quantity']
+                    self.sell_stoploss_orders.pop(j)
+            if stoploss_qty:
+                print 'SELL Stoploss triggered. Buying %d stock(s)...' % stoploss_qty
+                self.buy_trade(stoploss_qty)
+
+            # Execute strategy
             self.strategy(i, datapoint)
 
     def __preplot_process(self):
