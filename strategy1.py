@@ -19,7 +19,10 @@ class Strategy1(AlgoTradingBacktesting):
     def read_data(self):
         self.csv = pandas.read_csv(PATH_DATA_POINTS)
         self.timeline= [dt.datetime.strptime(date,'%d/%m/%y %H:%M') for date in self.csv['Date']][::-1]
-        self.datapoints = self.csv['TATASTEEL-EQ C'].tolist()[::-1]
+        self.candles_open = self.csv['TATASTEEL-EQ O'].tolist()[::-1]
+        self.candles_close = self.csv['TATASTEEL-EQ C'].tolist()[::-1]
+        self.candles_high = self.csv['TATASTEEL-EQ H'].tolist()[::-1]
+        self.candles_low = self.csv['TATASTEEL-EQ L'].tolist()[::-1]
 
     def sma(self, data, window):
         """
@@ -61,16 +64,16 @@ class Strategy1(AlgoTradingBacktesting):
             self.prev_val1, self.prev_val2 = val1, val2
             return 0
 
-    def strategy(self, i, datapoint):
+    def strategy(self, i, candle_open, candle_close, candle_low, candle_high):
         crossover = 0
         if i >= 29:      # ema(15) needs atleast 30 points
-            crossover = self.crossover(self.ema(self.datapoints[:i+1], 3), self.ema(self.datapoints[:i+1], 15))
+            crossover = self.crossover(self.ema(self.candles_close[:i+1], 3), self.ema(self.candles_close[:i+1], 15))
             if (crossover == 1):
-                # Buy crossover
-                self.buy_trade()
+                print 'Crossover, BUY: stock_price: %f' % (candle_close)
+                self.buy_trade(entry_price=candle_close, quantity=1)
             elif (crossover == -1):
-                # Sell crossover
-                self.sell_trade()
+                print 'Crossover, SELL: stock_price: %f' % (candle_close)
+                self.sell_trade(entry_price=candle_close, quantity=1)
 
 
 if __name__ == "__main__":
