@@ -67,12 +67,19 @@ class Strategy2(AlgoTradingBacktesting):
         crossover = 0
         if i >= 29:      # ema(15) needs atleast 30 points
             crossover = self.crossover(self.ema(self.datapoints[:i+1], 3), self.ema(self.datapoints[:i+1], 15))
-            if (crossover != 0):
-                self.buy_trade(quantity=1, stop_loss_trigger=datapoint*(1 - 0.03))
-
+            if (crossover == 1):
+                stop_loss = datapoint*(1 - 0.01)
+                target = datapoint*(1 + 0.003)
+                print 'Crossover, BUY: stock_price: %f, stop_loss: %f, target_price: %f' % (datapoint, stop_loss, target)
+                self.buy_trade(quantity=1, stop_loss_trigger=stop_loss, target_price=target)
+            elif (crossover == -1):
+                stop_loss = datapoint*(1 + 0.01)
+                target = datapoint*(1 - 0.003)
+                print 'Crossover, SELL: stock_price: %f, stop_loss: %f, target_price: %f' % (datapoint, stop_loss, target)
+                self.sell_trade(quantity=1, stop_loss_trigger=stop_loss, target_price=target)
 
 if __name__ == "__main__":
     algotrading = Strategy2()
     algotrading.backtest()
-#    algotrading.plot()
-    algotrading.animate()
+    algotrading.plot()
+#    algotrading.animate()
