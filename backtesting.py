@@ -4,8 +4,10 @@
 """
 
 from abc import ABCMeta, abstractmethod
+from itertools import chain
 import time
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 from order import BuyOrder, SellOrder
 
 
@@ -93,8 +95,50 @@ class AlgoTradingBacktesting:
                              self.current_candle_high,
                              self.current_candle_low)
 
+    def get_statistics(self, i=None):
+        """
+        Get various statistics.
+        If i is None, provide end of simulation statistics
+        If i in not None, provide statistics generated upto self.timeline[i]
+        """
+        executed_trades = 0
+        open_trades = 0
+        profitable_trades = 0
+        loss_making_trades = 0
+
+        if i is None:
+            i = -1          # till last element of self.timeline
+
+        # Code for recreating scenario of executed and open trades for
+        # given time 'i' (ie self.timeline[i])
+        for j, order in enumerate(chain(self.closed_orders, self.open_orders)):
+            if (order.exit_time is not None and order.exit_time <= self.timeline[i]):
+                executed_trades += 1
+                if order.profit >= 0:
+                    profitable_trades += 1
+                else:
+                    loss_making_trades += 1
+            elif (order.entry_time < self.timeline[i] and (order.exit_time is None or order.exit_time > self.timeline[i])):
+                open_trades += 1
+            else:
+                break
+
+        return """
+Statistics:
+---------------------------
+Executed trades: %d
+Open trades: %d
+Profitable trades: %d
+Loss making trades: %d
+             """ % (executed_trades, open_trades, profitable_trades, loss_making_trades)
+
+    def print_statistics(self):
+        print self.get_statistics()
+
     def __preplot_process(self):
         self.profit_percents = []
+#        self.buy_quantities = []
+#        self.sell_quantities = []
 
         # This confusing piece of code below generates the list
         # self.profit_percents, holding proft_percents corresponding to
@@ -107,15 +151,28 @@ class AlgoTradingBacktesting:
         for i, _time in enumerate(self.timeline):
             if j <= max_j and _time == self.closed_orders[j].exit_time:
                 total_profit += self.closed_orders[j].profit
+#                if self.closed_orders[j].type == 'buy':
+#                    self.buy_quantities.append(self.closed_orders[j].quantity)
+#                    self.sell_quantities.append(0)
+#                else:
+#                    self.sell_quantities.append(-self.closed_orders[j].quantity)
+#                    self.buy_quantities.append(0)
                 j += 1
                 if j <= max_j:
                     while True:
                         if self.closed_orders[j].exit_time == _time:
                             total_profit += (self.close_orders[j].profit)
                             max_entry_price = self.closed_orders[j].entry_price if self.closed_orders[j].entry_price > max_entry_price else max_entry_price
+#                            if self.closed_orders[j].type == 'buy':
+#                                self.buy_quantities[i] = self.buy_quantities[i] + self.closed_orders[j].quantity
+#                            else:
+#                                self.sell_quantities[i] = self.sell_quantities[i] - self.closed_orders[j].quantity
                             j += 1
                         else:
                             break
+#            else:
+#                self.buy_quantities.append(0)
+#                self.sell_quantities.append(0)
 
             if j <= max_j:
                 max_entry_price = self.closed_orders[j].entry_price if self.closed_orders[j].entry_price > max_entry_price else max_entry_price
@@ -136,15 +193,23 @@ class AlgoTradingBacktesting:
         self.ax1.set_ylabel('Stock price')
         self.ax1.set_xlim([self.timeline[0], self.timeline[-1]])
         self.ax1.set_ylim([ylim1_min, ylim1_max])
-        self.ax1.set_title('Close candle price vs Timeline')
+#        self.ax1.set_title('Close candle price vs Timeline')
 #        self.ax1.grid(b=True, which='both', axis='both')
 
         self.ax2.set_xlabel('Date')
         self.ax2.set_ylabel('Percentage profit')
         self.ax2.set_xlim([self.timeline[0], self.timeline[-1]])
         self.ax2.set_ylim([ylim2_min, ylim2_max])
-        self.ax1.set_title('Profit percent vs Timeline')
-#        self.ax2s.grid(b=True, which='both', axis='both')
+#        self.ax2.set_title('Profit percent vs Timeline')
+#        self.ax2.grid(b=True, which='both', axis='both')
+
+        # For showing statistics on plot
+        self.plot_text = Rectangle((0, 0), 1.5, 1, fc="w", fill=False, edgecolor='none', linewidth=0)
+
+        # open plot as maximized
+        mng = plt.get_current_fig_manager()
+        mng.window.showMaximized()
+        plt.tight_layout()
 
     def plot(self):
         """
@@ -161,28 +226,14 @@ class AlgoTradingBacktesting:
         # Stock price
         self.ax1.plot(self.timeline, self.candles_close, color='b')
 
-        # Percentage profit
+        # Percentage profit with statistics
         self.ax2.plot(self.timeline, self.profit_percents, color='b')
+        self.ax2.legend([self.plot_text], [self.get_statistics()], loc='upper left')
 
-        # Annotate ax1 with buy and sell information
-#        previous_quantity = 0
-#        for i, th in enumerate(self.trade_history):
-#            if previous_quantity < th['quantity']:
-#                self.ax1.annotate('',
-#                            xy=(self.timeline[i], th['stock_price']), xycoords='data',
-#                            xytext=(self.timeline[i], th['stock_price'] + 3), textcoords='data',
-#                            size=20, va="center", ha="center",
-#                            arrowprops=dict(arrowstyle="-", color="green"),
-#                            )
-#            if previous_quantity > th['quantity']:
-#                self.ax1.annotate('',
-#                            xy=(self.timeline[i], th['stock_price']), xycoords='data',
-#                            xytext=(self.timeline[i], th['stock_price'] - 3), textcoords='data',
-#                            size=20, va="center", ha="center",
-#                            arrowprops=dict(arrowstyle="-", color="red"),
-#                            )
-#
-##            previous_quantity = th['quantity']
+        # Buy/sell bar charts
+#        self.ax3.plot(self.timeline, self.buy_quantities, color='g')
+#        self.ax3.plot(self.timeline, self.sell_quantities, color='r')
+
 
         plt.show()
 
@@ -196,6 +247,7 @@ class AlgoTradingBacktesting:
         """
         self.__preplot_process()
 
+        # interactive plot mode 'on'
         plt.ion()
         plt.figure(1)
         plt.hold(True)
@@ -203,23 +255,23 @@ class AlgoTradingBacktesting:
         ax1_plot = None
         ax2_plot = None
 
-        step = self.df.shape[0]/100 if self.df.shape[0]/100 >= 1 else 1
-        for i in xrange(0, self.df.shape[0], step):
+        animation_frames = 100
+        step = len(self.timeline)/animation_frames  if len(self.timeline)/animation_frames  >= 1 else 1
+
+        for i in chain(xrange(0, len(self.timeline), step), [len(self.timeline)-1]):
             # Stock price
             if ax1_plot:
                 ax1_plot.remove()
             ax1_plot, = self.ax1.plot(self.timeline[:i], self.candles_close[:i], color='b')
 
-            # Percentage profit
+            # Percentage profit with statistics
             if ax2_plot:
                 ax2_plot.remove()
             ax2_plot, = self.ax2.plot(self.timeline[:i], self.profit_percents[:i], color='b')
+            self.ax2.legend([self.plot_text], [self.get_statistics(i)], loc='upper left')
 
             plt.pause(0.01)
 
-            if i == 0:
-                time.sleep(1)
-
-        for i in xrange(10):
+        for i in xrange(20):
             # Wait for 10 sec and then exit
             time.sleep(1)
