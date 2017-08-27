@@ -189,10 +189,14 @@ Loss making trades: %d
         ylim2_max = max(self.profit_percents)
 
         # Subplots
+        tick_label_frequency = 10
         self.ax1.set_xlabel('Date')
         self.ax1.set_ylabel('Stock price')
         self.ax1.set_xlim([self.timeline[0], self.timeline[-1]])
         self.ax1.set_ylim([ylim1_min, ylim1_max])
+        if hasattr(self, 'timeline_labels'):
+            self.ax1.set_xticks(self.timeline[::len(self.timeline)/tick_label_frequency])
+            self.ax1.set_xticklabels(self.timeline_labels[::len(self.timeline)/tick_label_frequency])
 #        self.ax1.set_title('Close candle price vs Timeline')
 #        self.ax1.grid(b=True, which='both', axis='both')
 
@@ -200,6 +204,9 @@ Loss making trades: %d
         self.ax2.set_ylabel('Percentage profit')
         self.ax2.set_xlim([self.timeline[0], self.timeline[-1]])
         self.ax2.set_ylim([ylim2_min, ylim2_max])
+        if hasattr(self, 'timeline_labels'):
+            self.ax2.set_xticks(self.timeline[::len(self.timeline)/tick_label_frequency])
+            self.ax2.set_xticklabels(self.timeline_labels[::len(self.timeline)/tick_label_frequency])
 #        self.ax2.set_title('Profit percent vs Timeline')
 #        self.ax2.grid(b=True, which='both', axis='both')
 
@@ -249,14 +256,11 @@ Loss making trades: %d
 
         # interactive plot mode 'on'
         plt.ion()
-        plt.figure(1)
-        plt.hold(True)
 
         ax1_plot = None
         ax2_plot = None
-
         animation_frames = 100
-        step = len(self.timeline)/animation_frames  if len(self.timeline)/animation_frames  >= 1 else 1
+        step = len(self.timeline)/animation_frames  if len(self.timeline)/animation_frames >= 1 else 1
 
         for i in chain(xrange(0, len(self.timeline), step), [len(self.timeline)-1]):
             # Stock price
