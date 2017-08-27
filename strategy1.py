@@ -79,5 +79,7 @@ class Strategy1(AlgoTradingBacktesting):
 if __name__ == "__main__":
     algotrading = Strategy1()
     algotrading.backtest()
-    algotrading.plot()
-#    algotrading.animate()
+    algotrading.print_statistics()
+    algotrading.print_statistics()
+#    algotrading.plot()
+    algotrading.animate()
