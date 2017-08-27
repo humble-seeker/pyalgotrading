@@ -17,11 +17,11 @@ class Order:
             raise Exception('Type has to be either buy or sell')
         self.entry_price = entry_price
         self.quantity = quantity
+        self.entry_time = entry_time
         self.stop_loss_trigger = stop_loss_trigger
         self.target_trigger = target_trigger
 
-        self.id = uuid.uuid4()      # unique random id
-        self.entry_time = entry_time
+        self.id = uuid.uuid4()      # unique random ids
         self.exit_time = None
         self.exit_price = None
         self.profit = None
