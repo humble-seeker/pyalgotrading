@@ -6,13 +6,12 @@ A python based framework for algorithmic trading. Framework supports backtesting
 This GitHub repository is created for my proposal at PyCon India 2017 - ["Introduction to Algorithmic Trading at Indian Stock Markets using Python"](https://in.pycon.org/cfp/2017/proposals/introduction-to-algorithmic-trading-at-indian-stock-markets-using-python~bY0Wa)
 
 
-### Example
+### Example of strategy (algorithm) backtesting
 
 #### Algorithm:
-CROSSOVER(EMA(3), EMA(15)) : Buy Order
-CROSSOVER(EMA(15), EMA(3)) : Sell Order
-
-Every Buy and Sell order is placed with 0.3% Target Price and 1% Stop Loss.
+* CROSSOVER(EMA(3), EMA(15)) : Buy Order
+* CROSSOVER(EMA(15), EMA(3)) : Sell Order
+* Every Buy and Sell order is placed with 0.3% Target Price and 1% Stop Loss.
 
 #### Data:
 * Quote: TATASTEEL (NSE),
@@ -26,7 +25,7 @@ Every Buy and Sell order is placed with 0.3% Target Price and 1% Stop Loss.
 * Loss making trades: 30
 * **Average profit: ~6%/month (~72% annually)**
 
-Check out strategy2.log in the repository for complete list of transactions
+Check out [strategy2.log](https://raw.githubusercontent.com/guanidene/pyalgotrading/master/strategy2.log) in the repository for complete list of transactions
 
 #### Click the image below to watch video of backtesting strategy in action for TATSTEEL(NSE) datapoints.
 
