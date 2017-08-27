@@ -1,0 +1,18 @@
+# This is NOT a global gitignore file. The global gitignore file is ~/.gitignore_global
+# This gitignore is meant to only track a few files
+
+# ignore everything, unless explicitly mentioned
+*
+
+# tracking these mandatory for correct functioning of this repo
+!.gitconfig
+!.gitignore_global
+!.gitignore
+
+# add all other conf. files you wish to track
+!.bashrc
+!.bashrc.user
+!.pythonstartup.py
+!.tmux.conf
+!.vimrc
+!.README_conf_sync
