@@ -18,7 +18,8 @@ class Strategy2(AlgoTradingBacktesting):
 
     def read_data(self):
         self.csv = pandas.read_csv(PATH_DATA_POINTS)
-        self.timeline= [dt.datetime.strptime(date,'%d/%m/%y %H:%M') for date in self.csv['Date']][::-1]
+        self.timeline_labels = [dt.datetime.strptime(date,'%d/%m/%y %H:%M').strftime("%d/%m/%y") for date in self.csv['Date']][::-1]
+        self.timeline = [i for i in xrange(len(self.timeline_labels))]
         self.candles_open = self.csv['TATASTEEL-EQ O'].tolist()[::-1]
         self.candles_close = self.csv['TATASTEEL-EQ C'].tolist()[::-1]
         self.candles_high = self.csv['TATASTEEL-EQ H'].tolist()[::-1]
@@ -82,8 +83,8 @@ class Strategy2(AlgoTradingBacktesting):
                                 stop_loss_trigger=stop_loss, target_trigger=target)
 
 if __name__ == "__main__":
-    algotrading = Strategy2()
-    algotrading.backtest()
-    algotrading.print_statistics()
-#    algotrading.plot()
-    algotrading.animate()
+    algotrading_backtesting = Strategy2()
+    algotrading_backtesting.backtest()
+    algotrading_backtesting.print_statistics()
+    algotrading_backtesting.plot()
+#    algotrading.animate()
