@@ -1,49 +1,36 @@
-This GitHub repository is created for proposal of my talk at PyCon India 2017 - 
-### Introduction to Algorithmic Trading at Indian Stock Markets using Python
 
-(It hasn't been announed yet if this talk is selected)
+# pyalgotrading
 
-------------------------------
+A python based framework for algorithmic trading. Framework supports backtesting, alongwith STOP LOSS and TARGET price features.
 
-**For what audience is this talk intended?**
-
-For those interested in using the power of Python to book profits and save time by automating their trading strategies at Indian Stock Markets.
-
-**What is Algorithmic Trading?**
-
-Imagine if you can write a Python script which can, for example, *automatically BUY 100 shares of company 'X' when its price hits 52 week low and SELL it when its price hits 52 week high* or based on some other different strategy which suits you. Sounds cool, right? 
-
-Algorithmic Trading is the process of using computer programs, based on a predefined algorithm, for placing a trade in order to generate profits at a speed and frequency that is impossible for a human trader.
-
-*(The above example is very basic. You can code very complex strategies!)*
-
-**Tell me the advantages of Algorithmic Trading over Conventional Trading**
-
-*Here are a few reasons why algorithmic trading can lead to high chances of success -*
+This GitHub repository is created for my proposal at PyCon India 2017 - ["Introduction to Algorithmic Trading at Indian Stock Markets using Python"](https://in.pycon.org/cfp/2017/proposals/introduction-to-algorithmic-trading-at-indian-stock-markets-using-python~bY0Wa)
 
 
- - Ability to take into account large number of factors for decision making, which can be practically impossible for a human
- - Trades can be timed correctly. Manually placing trade involves delay which may result in significant price change by the time trade is placed
- - Human error eliminated while placing trades
+### Example of strategy (algorithm) backtesting
 
-And lastly, you can use your precious time for something else! Just let your computer monitor the stock markets 24x7 and place trade orders for you.
+#### Algorithm:
+* CROSSOVER(EMA(3), EMA(15)) : Buy Order
+* CROSSOVER(EMA(15), EMA(3)) : Sell Order
+* Every Buy and Sell order is placed with 0.3% Target Price and 1% Stop Loss.
 
-----------
+#### Data:
+* Quote: TATASTEEL (NSE),
+* Duration of backtesting: 16th June to 14th August, 2017 (2 months)
+* Datapoints: 15,180 (1 minute intra day data)
+
+#### Statistics:
+* Executed trades: 141
+* Open trades: 1
+* Profitable trades: 111
+* Loss making trades: 30
+* **Average profit: ~6%/month (~72% annually)**
+
+Check out [strategy2.log](https://raw.githubusercontent.com/guanidene/pyalgotrading/master/strategy2.log) in the repository for complete list of transactions
+
+#### Click the image below to watch video of backtesting strategy in action for TATSTEEL(NSE) datapoints.
+
+[![Click the watch video of backtesting strategy2 in action on TATSTEEL(NSE) data](https://raw.githubusercontent.com/guanidene/pyalgotrading/master/strategy2-returns.png)](https://www.youtube.com/watch?v=NK1ZYsRfF44)
 
 
-**Ok. Now that you have got me interested, tell me quickly what this TALK will cover.**
+#### Instructions on how to install this repository would be added here soon.
 
-For implementing Algorithmic Trading in Python, you need the following -
-
- - Ability to query current price of a stock in Python
- - Ability to query historical price of a stock in Python
- - Ability to place BUY/SELL trade order at Indian Stock Exchanges (NSE/BSE) using Python
- - A strategy (ie the *Algorithm*), which based on current price and historic data gives out predictions whether to BUY, SELL or HOLD.
-
-**This TALK will demonstrate a simple yet working trading strategy along with backtesting, in Python, covering all the above points.**
-
-*Please note, I have put the target audience as "Beginners" and hence keeping it simple. I agree there is a lot more that can be done in this space.*
-
-
-Jupyter Notebook for my PyCon 2017 proposal - 
-https://in.pycon.org/cfp/2017/proposals/introduction-to-algorithmic-trading-at-indian-stock-markets-using-python~bY0Wa/
