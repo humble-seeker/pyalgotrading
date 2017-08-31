@@ -37,7 +37,7 @@ class Order:
         self.position = 'close'
         self.calculate_profit()
         print '[ID: %s] %sing %d@%f. Profit booked: %f %%' \
-              % (self. id,self.type, self.quantity,
+              % (self.id, self.type, self.quantity,
                  self.exit_price, self.profit_percent)
 
 
@@ -51,6 +51,8 @@ class BuyOrder(Order):
 
         Order.__init__(self, 'buy', entry_price, quantity, entry_time,
                        stop_loss_trigger, target_trigger)
+        print '[ID: %s] Buying %d@%f (New order)' \
+              % (self.id, self.quantity, self.entry_price)
 
     def calculate_profit(self):
         """
@@ -90,8 +92,11 @@ class SellOrder(Order):
             raise Exception('Stop loss trigger for sell order should be >= entry_price')
         if target_trigger and target_trigger >= entry_price:
             raise Exception('target trigger for sell order should be <= entry_price')
+
         Order.__init__(self, 'sell', entry_price, quantity, entry_time,
                        stop_loss_trigger, target_trigger)
+        print '[ID: %s] Selling %d@%f (New order)' \
+              % (self.id, self.quantity, self.entry_price)
 
     def calculate_profit(self):
         """
